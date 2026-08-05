@@ -1,0 +1,17 @@
+# 로컬 도구 설정 (머신별 값이므로 공유하지 않는다)
+.claude/settings.local.json
+
+# 설치/제거 스크립트가 만드는 프로필 백업
+*.bak-*
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/

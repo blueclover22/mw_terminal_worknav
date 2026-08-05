@@ -1,0 +1,22 @@
+root = true
+
+# 개행 규칙은 .gitattributes 와 일치시킨다.
+# 편집기가 쓰는 개행과 git 이 체크아웃하는 개행이 어긋나면
+# 양쪽 OS 에서 번갈아 편집할 때 파일에 혼합 개행이 생긴다.
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+
+[*.ps1]
+indent_style = space
+indent_size = 4
+end_of_line = crlf
+
+[*.zsh]
+indent_style = space
+indent_size = 2
+
+[*.sh]
+indent_style = space
+indent_size = 2
