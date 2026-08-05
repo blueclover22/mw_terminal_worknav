@@ -138,9 +138,14 @@ mtw_list() {
     return 0
   fi
 
-  local key
+  # 가장 긴 명령 이름에 맞춰 폭을 잡는다 — 고정 폭이면 긴 이름에서 여백이 사라진다.
+  local key width=20
+  for key in ${(k)MTW_PROJECTS}; do
+    (( ${#key} + 9 > width )) && width=$(( ${#key} + 9 ))
+  done
+
   for key in ${(ko)MTW_PROJECTS}; do
-    printf '%-20s%s\n' "mtw_cd_${key}" "${MTW_PROJECTS[$key]}"
+    printf '%-*s%s\n' "$width" "mtw_cd_${key}" "${MTW_PROJECTS[$key]}"
   done
 }
 

@@ -99,7 +99,7 @@ pwsh -NoProfile -File .\windows\install.ps1
 설치 스크립트가 하는 일은 다음 네 가지뿐입니다.
 
 1. `~/.mtw/` 생성
-2. 기능 본체(`mtw.zsh` / `mtw.ps1`)를 `~/.mtw/` 로 복사
+2. 기능 본체(`mtw.zsh` / `mtw.ps1`)를 `~/.mtw/` 로 복사 (**기존 파일은 덮어씀 — 재실행이 곧 업데이트**)
 3. `~/.mtw/projects` 가 없으면 빈 파일로 생성 (**있으면 그대로 보존**)
 4. 프로필(`~/.zshrc` / `$PROFILE`) 끝에 로더 블록 추가
 

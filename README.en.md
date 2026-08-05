@@ -99,7 +99,7 @@ pwsh -NoProfile -File .\windows\install.ps1
 The install script does exactly four things.
 
 1. Creates `~/.mtw/`
-2. Copies the implementation (`mtw.zsh` / `mtw.ps1`) into `~/.mtw/`
+2. Copies the implementation (`mtw.zsh` / `mtw.ps1`) into `~/.mtw/` (**overwrites the existing file — rerunning the script is how you update**)
 3. Creates `~/.mtw/projects` as an empty file if it does not exist (**keeps it as is if it does**)
 4. Appends a loader block to your profile (`~/.zshrc` / `$PROFILE`)
 
