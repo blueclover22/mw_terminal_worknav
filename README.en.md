@@ -177,8 +177,9 @@ tmux new-session -A -s <session> -c <path> <agent command>    # called from outs
 tmux new-window     -n <session> -c <path> <agent command>    # called from inside a session
 ```
 
-Four behaviors you must know about.
+Five behaviors you must know about.
 
+- **Quitting the agent ends the session too.** The agent command is the window's root process, so typing `/exit` in Claude Code closes the window — and the session with it if that was the last window. That is normal tmux behavior. To keep the session alive, detach (`Ctrl-b d`) instead of quitting. When called from inside a session it is a new window, so only that window closes.
 - **An unregistered name produces an error and stops.** No session is created.
 - **When `-A` attaches to an existing session, the trailing agent command is not executed.** That is normal tmux behavior and this tool does not work around it. So running `mtw_claude myApp` a second time simply returns you to the existing session; Claude Code is not launched again.
 - **The session name comes from the project name only, never from the agent.** So running `mtw_codex myApp` after `mtw_claude myApp` attaches to the same session and Codex is not launched. **To use both agents on one project, call the second one from inside the session** — inside a session a **new window** is opened instead of a new session. (Being inside a session is detected from whether the `TMUX` environment variable is set.)
