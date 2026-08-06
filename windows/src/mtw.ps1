@@ -165,14 +165,14 @@ function mtw_list {
         return
     }
 
-    # 가장 긴 명령 이름에 맞춰 폭을 잡는다 — 고정 폭이면 긴 이름에서 여백이 사라진다.
-    $width = 20
+    # 가장 긴 이름에 맞춰 폭을 잡는다 — 고정 폭이면 긴 이름에서 여백이 사라진다.
+    $width = 12
     foreach ($key in $script:MTW_PROJECTS.Keys) {
-        if ($key.Length + 9 -gt $width) { $width = $key.Length + 9 }
+        if ($key.Length + 2 -gt $width) { $width = $key.Length + 2 }
     }
 
     foreach ($key in ($script:MTW_PROJECTS.Keys | Sort-Object)) {
-        Write-Output ("mtw_cd_$key".PadRight($width) + $script:MTW_PROJECTS[$key])
+        Write-Output ($key.PadRight($width) + $script:MTW_PROJECTS[$key])
     }
     $global:LASTEXITCODE = 0
 }

@@ -60,7 +60,7 @@ Two cases are distinguished, and **both operating systems behave identically**.
 | Duplicate type | Result |
 |---|---|
 | **Exactly the same name** — `myApp=/path/ONE` and `myApp=/path/TWO` | **The later line wins.** `mtw_cd_myApp` jumps to `/path/TWO` |
-| **Names differing only in case** — `Foo=/path/first` and `foo=/path/second` | **Only the first line is loaded**; the later one is silently ignored. `mtw_list` shows a single row, `mtw_cd_Foo` |
+| **Names differing only in case** — `Foo=/path/first` and `foo=/path/second` | **Only the first line is loaded**; the later one is silently ignored. `mtw_list` shows a single row, `Foo` |
 
 The case rule is first-come-first-served because **PowerShell function names are case-insensitive**, so `mtw_cd_Foo` and `mtw_cd_foo` cannot coexist. To keep both operating systems identical, the macOS implementation follows the same rule.
 

@@ -60,7 +60,7 @@ project=/Users/minwoo/workspace/projects/project
 | 중복 유형 | 결과 |
 |---|---|
 | **완전히 같은 이름** — `myApp=/path/ONE` 과 `myApp=/path/TWO` | **나중 줄이 이깁니다.** `mtw_cd_myApp` 은 `/path/TWO` 로 이동합니다 |
-| **대소문자만 다른 이름** — `Foo=/path/first` 와 `foo=/path/second` | **먼저 나온 줄만 적재되고** 뒤 줄은 조용히 무시됩니다. `mtw_list` 에도 `mtw_cd_Foo` 한 행만 나옵니다 |
+| **대소문자만 다른 이름** — `Foo=/path/first` 와 `foo=/path/second` | **먼저 나온 줄만 적재되고** 뒤 줄은 조용히 무시됩니다. `mtw_list` 에도 `Foo` 한 행만 나옵니다 |
 
 대소문자 규칙이 선착순인 이유는 **PowerShell 의 함수 이름이 대소문자를 구분하지 않아** `mtw_cd_Foo` 와 `mtw_cd_foo` 를 동시에 가질 수 없기 때문입니다. 양쪽 OS 동작을 일치시키기 위해 macOS 판도 같은 규칙을 따릅니다.
 

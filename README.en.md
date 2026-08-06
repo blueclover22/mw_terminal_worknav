@@ -134,7 +134,7 @@ $ mtw_new myApp
 등록되었습니다: mtw_cd_myApp -> /Users/minwoo/workspace/projects/myApp
 
 $ mtw_list
-mtw_cd_myApp        /Users/minwoo/workspace/projects/myApp
+myApp       /Users/minwoo/workspace/projects/myApp
 
 $ mtw_rm myApp
 등록 해제되었습니다: myApp (폴더는 그대로 남아 있습니다: /Users/minwoo/workspace/projects/myApp)
