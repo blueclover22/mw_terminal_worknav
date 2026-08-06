@@ -131,7 +131,7 @@ mtw_help            show every command
 
 ```
 $ mtw_new myApp
-등록되었습니다: mtw_cd_myApp -> /Users/minwoo/workspace/projects/myApp
+등록되었습니다: myApp -> /Users/minwoo/workspace/projects/myApp
 
 $ mtw_list
 myApp       /Users/minwoo/workspace/projects/myApp
@@ -144,7 +144,7 @@ $ mtw_rm myApp
 
 - **Usable immediately after registering.** `mtw_new` reloads the list and regenerates the jump functions, so `mtw_cd_myApp` and tab completion work without restarting the terminal.
 - **The duplicate check is case-insensitive.** With `myApp` registered, `mtw_new MYAPP` is rejected. The name is stored exactly as you typed it.
-- **`mtw_rm` matches names case-insensitively too.** There is no confirmation prompt — all that disappears is one bookmark line, and the folder stays.
+- **`mtw_rm` and the agent commands match names case-insensitively too**, and messages and session names use the registered spelling. `mtw_rm` has no confirmation prompt — all that disappears is one bookmark line, and the folder stays.
 - A failed command prints an error, ends with **exit code 1**, and leaves the list file unchanged.
 
 ### Jumping
@@ -166,6 +166,7 @@ mtw_codex  [name]   create a session, then run Codex CLI
 |---|---|---|
 | `mtw_claude` | current folder name | current folder |
 | `mtw_claude myApp` (registered name) | `myApp` | the registered path |
+| `mtw_claude MYAPP` (differs only in case) | `myApp` | the registered path |
 | `mtw_claude tmp` (unregistered name) | — | prints an error and stops, exit code 1 |
 
 Internally one of these two forms is invoked. Both operating systems use exactly the same command.

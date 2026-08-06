@@ -106,13 +106,22 @@ function __mtw_session {
     )
 
     if (-not [string]::IsNullOrEmpty($Name)) {
-        if (-not $script:MTW_PROJECTS.ContainsKey($Name)) {
+        # 이름 매칭은 대소문자를 무시한다 — mtw_new 중복 검사 · mtw_rm 과 같은 규칙.
+        # 세션명도 입력 표기가 아니라 등록된 표기를 쓴다.
+        $matchedKey = ''
+        foreach ($existingKey in $script:MTW_PROJECTS.Keys) {
+            if ($existingKey.ToLowerInvariant() -eq $Name.ToLowerInvariant()) {
+                $matchedKey = $existingKey
+                break
+            }
+        }
+        if ([string]::IsNullOrEmpty($matchedKey)) {
             $host.UI.WriteErrorLine("mtw: 오류: 등록되지 않은 이름입니다: $Name")
             $global:LASTEXITCODE = 1
             return
         }
-        $targetPath = $script:MTW_PROJECTS[$Name]
-        $session = $Name
+        $targetPath = $script:MTW_PROJECTS[$matchedKey]
+        $session = $matchedKey
     }
     else {
         $targetPath = (Get-Location).Path
@@ -239,7 +248,7 @@ function mtw_new {
     __mtw_load
     __mtw_register
 
-    Write-Output "등록되었습니다: mtw_cd_$Name -> $currentPath"
+    Write-Output "등록되었습니다: $Name -> $currentPath"
     $global:LASTEXITCODE = 0
 }
 
@@ -261,6 +270,7 @@ function mtw_rm {
 
     $targetLower = $Name.ToLowerInvariant()
     $found = $false
+    $removedKey = ''
     $removedPath = ''
     $outLines = [System.Collections.Generic.List[string]]::new()
 
@@ -274,6 +284,8 @@ function mtw_rm {
         $key = $line.Substring(0, $idx)
         if ($key -ne '' -and $key.ToLowerInvariant() -eq $targetLower) {
             $found = $true
+            # 입력 표기가 아니라 등록된 표기를 알린다 — 매칭이 대소문자를 무시하기 때문.
+            $removedKey = $key
             $removedPath = $line.Substring($idx + 1)
             continue
         }
@@ -302,7 +314,7 @@ function mtw_rm {
     __mtw_load
     __mtw_register
 
-    Write-Output "등록 해제되었습니다: $Name (폴더는 그대로 남아 있습니다: $removedPath)"
+    Write-Output "등록 해제되었습니다: $removedKey (폴더는 그대로 남아 있습니다: $removedPath)"
     $global:LASTEXITCODE = 0
 }
 

@@ -85,15 +85,24 @@ __mtw_register_agents() {
 __mtw_session() {
   local agent_cmd="$1"
   local name="$2"
-  local target_path session
+  local target_path session key matched_key
 
   if [[ -n "$name" ]]; then
-    if (( ! ${+MTW_PROJECTS[$name]} )); then
+    # 이름 매칭은 대소문자를 무시한다 — mtw_new 중복 검사 · mtw_rm 과 같은 규칙.
+    # 세션명도 입력 표기가 아니라 등록된 표기를 쓴다.
+    matched_key=""
+    for key in ${(k)MTW_PROJECTS}; do
+      if [[ "${key:l}" == "${name:l}" ]]; then
+        matched_key="$key"
+        break
+      fi
+    done
+    if [[ -z "$matched_key" ]]; then
       print -ru2 -- "mtw: 오류: 등록되지 않은 이름입니다: $name"
       return 1
     fi
-    target_path="${MTW_PROJECTS[$name]}"
-    session="$name"
+    target_path="${MTW_PROJECTS[$matched_key]}"
+    session="$matched_key"
   else
     target_path="$PWD"
     session="${PWD:t}"
@@ -201,7 +210,7 @@ mtw_new() {
   __mtw_load
   __mtw_register
 
-  print -r -- "등록되었습니다: mtw_cd_${name} -> ${PWD}"
+  print -r -- "등록되었습니다: ${name} -> ${PWD}"
 }
 
 mtw_rm() {
@@ -220,6 +229,7 @@ mtw_rm() {
 
   local target_lc="${name:l}"
   local found=0
+  local removed_key=""
   local removed_path=""
   local -a out_lines
   out_lines=()
@@ -233,6 +243,8 @@ mtw_rm() {
     key="${line%%=*}"
     if [[ -n "$key" && "${key:l}" == "$target_lc" ]]; then
       found=1
+      # 입력 표기가 아니라 등록된 표기를 알린다 — 매칭이 대소문자를 무시하기 때문.
+      removed_key="$key"
       removed_path="${line#*=}"
       # __mtw_load 와 같은 규칙 — 남기면 완료 메시지 끝에 CR 이 붙는다.
       removed_path="${removed_path%$'\r'}"
@@ -274,7 +286,7 @@ mtw_rm() {
   __mtw_load
   __mtw_register
 
-  print -r -- "등록 해제되었습니다: $name (폴더는 그대로 남아 있습니다: $removed_path)"
+  print -r -- "등록 해제되었습니다: $removed_key (폴더는 그대로 남아 있습니다: $removed_path)"
 }
 
 mtw_help() {

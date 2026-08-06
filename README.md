@@ -131,7 +131,7 @@ mtw_help            전체 명령 안내
 
 ```
 $ mtw_new myApp
-등록되었습니다: mtw_cd_myApp -> /Users/minwoo/workspace/projects/myApp
+등록되었습니다: myApp -> /Users/minwoo/workspace/projects/myApp
 
 $ mtw_list
 myApp       /Users/minwoo/workspace/projects/myApp
@@ -142,7 +142,7 @@ $ mtw_rm myApp
 
 - **등록 직후 바로 쓸 수 있습니다.** `mtw_new` 는 등록 후 목록을 다시 읽고 이동 함수를 다시 만들므로, 터미널을 재시작하지 않아도 `mtw_cd_myApp` 과 탭 자동완성이 즉시 동작합니다.
 - **중복 검사는 대소문자를 무시합니다.** `myApp` 이 등록된 상태에서 `mtw_new MYAPP` 은 거부됩니다. 저장은 입력한 표기 그대로 합니다.
-- **`mtw_rm` 의 이름 매칭도 대소문자를 무시합니다.** 별도 확인 절차는 없습니다 — 사라지는 것은 북마크 한 줄뿐이고 폴더는 그대로이기 때문입니다.
+- **`mtw_rm` 과 에이전트 명령의 이름 매칭도 대소문자를 무시하며, 메시지·세션명에는 등록된 표기를 씁니다.** `mtw_rm` 에 별도 확인 절차는 없습니다 — 사라지는 것은 북마크 한 줄뿐이고 폴더는 그대로이기 때문입니다.
 - 실패한 명령은 오류 메시지를 내고 **종료 코드 1** 로 끝나며, 목록 파일은 변경되지 않습니다.
 
 ### 이동
@@ -164,6 +164,7 @@ mtw_codex  [이름]   세션 생성 후 Codex CLI 실행
 |---|---|---|
 | `mtw_claude` | 현재 폴더명 | 현재 폴더 |
 | `mtw_claude myApp` (등록된 이름) | `myApp` | 등록된 경로 |
+| `mtw_claude MYAPP` (대소문자만 다른 이름) | `myApp` | 등록된 경로 |
 | `mtw_claude tmp` (등록되지 않은 이름) | — | 오류 출력 후 중단, 종료 코드 1 |
 
 내부적으로는 아래 두 형태 중 하나를 호출합니다. 양쪽 OS 가 완전히 같은 명령을 씁니다.
