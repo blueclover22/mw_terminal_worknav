@@ -4,7 +4,7 @@
 
 psmux 는 Windows 네이티브 tmux 호환 멀티플렉서입니다. `mtw_claude` · `mtw_codex` 가 세션을 만들 때 사용합니다. psmux 가 없어도 이동·목록 명령은 정상 동작하지만 에이전트 명령은 쓸 수 없습니다.
 
-관련 문서: [README](../../README.md) · [macOS 쪽 설치](install-tmux.md) · [문제 해결](troubleshooting.md) · [Windows 검증 절차](windows-verification.md)
+관련 문서: [README](../../README.md) · [macOS 쪽 설치](install-tmux.md) · [문제 해결](troubleshooting.md)
 
 ## 1. 먼저 — PowerShell 7 이 필요합니다
 
@@ -85,7 +85,7 @@ tmux new-window     -n <세션명> -c <경로> <에이전트 명령>    # 세션
 - `-c` — 세션(창)의 시작 디렉터리.
 - 세션 안인지 밖인지는 환경변수 `TMUX` 의 설정 여부로 판별합니다. 세션 안에서 `$env:TMUX` 를 출력해 확인할 수 있습니다.
 
-> **psmux 에서 이 두 항목(`-A` / `-c` 플래그 지원, 세션 내부의 `TMUX` 설정)이 실제로 동작하는지는 Windows 실기 확인 대상입니다.** 확인 절차는 [`windows-verification.md`](windows-verification.md) 의 "최우선 전제 확인" 절에 있습니다. 둘 중 하나라도 실패하면 개별 명령이 아니라 설계 전제가 무너지므로, 이슈로 보고해 주세요.
+> **psmux 는 이 두 항목(`-A` / `-c` 플래그 지원, 세션 내부의 `TMUX` 설정)을 모두 지원합니다** — Windows 11 · psmux 3.3.7 실기에서 확인했습니다. 쓰고 계신 psmux 버전에서 둘 중 하나라도 동작하지 않는다면 개별 명령이 아니라 설계 전제가 무너지는 문제이므로, psmux 버전과 함께 이슈로 보고해 주세요.
 
 ## 5. 기본 조작
 

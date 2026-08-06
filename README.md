@@ -44,9 +44,7 @@ mtw_codex myApp     # 등록된 myApp 경로에서 실행
 | 셸 | zsh (기본 셸) | PowerShell 7 이상 |
 | 멀티플렉서 | tmux | psmux |
 | 에이전트 | Claude Code / Codex CLI 중 사용하는 것 (PATH 등록 필요) | 동일 |
-| 검증 상태 | 개발·실기 검증 완료 | **Windows 실기 검증 대기 (macOS 의 PowerShell 7 로 개발·검증됨)** |
-
-**검증 상태 행에 대하여.** Windows 판은 PowerShell 언어 수준에서는 이미 광범위하게 검증되었습니다 — 구문 검사, 시나리오 실기 실행, macOS 판과의 메시지·종료 코드 바이트 대조까지 개발 환경(macOS 에 설치한 PowerShell 7)에서 수행했습니다. 남아 있는 것은 **Windows 라는 OS·콘솔·psmux 바이너리에서만 확인할 수 있는 항목**뿐입니다. 그 목록과 확인 절차는 [`docs/ko/windows-verification.md`](docs/ko/windows-verification.md) 에 있으며, **그 문서의 전 항목이 "통과" 로 기록되면 위 표의 Windows 검증 상태 행을 제거**합니다. 미수행 항목이 하나라도 남아 있으면 제거하지 않습니다.
+| 검증 상태 | 개발·실기 검증 완료 | 실기 검증 완료 (Windows 11 · PowerShell 7.6.4 · psmux 3.3.7) |
 
 에이전트 CLI(Claude Code, Codex CLI)의 설치·인증·PATH 등록은 사용자 책임이며 이 도구가 관여하지 않습니다. 등록하지 않아도 이동·목록 명령은 정상 동작합니다.
 

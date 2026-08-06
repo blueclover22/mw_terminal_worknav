@@ -103,7 +103,7 @@ echo $TMUX          # macOS — should print a socket path
 $env:TMUX           # Windows — should have a value
 ```
 
-If it is empty on Windows (psmux), psmux is not setting `TMUX`. That is not a usage problem but a broken design premise — follow the "Top-priority premise checks" in [`windows-verification.md`](windows-verification.md) and open an issue.
+If it is empty on Windows (psmux), psmux is not setting `TMUX`. That is not a usage problem but a broken design premise. It was confirmed working on psmux 3.3.7, so check your version with `psmux -V` and open an issue.
 
 ---
 
@@ -208,10 +208,38 @@ mtw_rm foo
 if ($LASTEXITCODE -eq 0) { 'ok' } else { 'failed' }
 ```
 
-For the same reason, **the PowerShell implementation's error output is not suppressed by `2>$null` nor captured by `2>&1`.** It uses `$host.UI.WriteErrorLine` in order to keep the message **byte-identical** to the macOS implementation. The background of both differences is in the "Known differences" section of [`windows-verification.md`](windows-verification.md).
+For the same reason, **the PowerShell implementation's error output is not suppressed by `2>$null` nor captured by `2>&1`.** It uses `$host.UI.WriteErrorLine` in order to keep the message **byte-identical** to the macOS implementation. Both differences were accepted in order to keep the messages and exit codes identical across the two operating systems; judging success or failure from `$LASTEXITCODE` is still guaranteed.
+
+---
+
+## Line endings change when a file is rewritten
+
+**This is known behavior, not a defect.** It shows up in two places.
+
+**1. When `mtw_rm` rewrites the list file** — the PowerShell implementation reads the file line by line and writes it back, so the line endings in the result are **unified to the platform default** (CRLF on Windows). The macOS implementation (zsh) preserves the original line endings, so this is the one point where the two differ. The list file is not meant to be shared across operating systems anyway because path notation differs, and it is self-consistent within one OS, so it was left as is.
+
+- **Guaranteed**: only the target line is removed; the **contents, order, comments and blank lines** of the remaining lines are preserved.
+- **Not guaranteed**: preservation of the original line-ending characters.
+
+**2. When the uninstall script rewrites your profile** — after uninstalling, the profile **always ends with exactly one newline, and blank lines at the end of the file are gone.** Both operating systems behave the same way here.
+
+```
+abc\ndef      →  abc\ndef\n     one newline added
+abc\n\n\n     →  abc\n          trailing blank lines lost
+abc\ndef\n    →  abc\ndef\n     unchanged
+```
+
+The install script appends a newline if the profile does not already end with one — without it the loader block would run straight on from your last line. At uninstall time there is no information to tell whether that newline was originally there or was added by the install.
+
+- **Guaranteed**: the **contents, order and encoding** of the lines you wrote are preserved. Any encoding (UTF-8 with BOM, CP949, latin-1, …) round-trips unchanged, and the line endings between lines are kept.
+- **Not guaranteed**: the presence or absence of the newline at the very end of the file, and trailing blank lines.
+
+> **Keep your own settings outside the marker block.** Lines you write between the markers (`# >>> mtw …` through `# <<< mtw …`) are deleted along with the block on uninstall. Content before and after the block is preserved as is.
+
+A backup (`*.bak-YYYYMMDD-HHMMSS`) is always created before the profile is touched, so you can roll back if the result is not what you expected.
 
 ---
 
 ## Anything else
 
-Please open an issue with the steps to reproduce. If you hit it on Windows, include the result of the corresponding item in [`windows-verification.md`](windows-verification.md) — it makes the cause much easier to pin down.
+Please open an issue with the steps to reproduce. If you hit it on Windows, include your OS version, `pwsh -v`, `psmux -V` and the console type (Windows Terminal or the legacy console) — it makes the cause much easier to pin down.

@@ -44,9 +44,7 @@ The jump command uses the double prefix `mtw_cd_` so that commands generated fro
 | Shell | zsh (the default shell) | PowerShell 7 or later |
 | Multiplexer | tmux | psmux |
 | Agent | Claude Code / Codex CLI, whichever you use (must be on PATH) | same |
-| Verification status | developed and verified on real hardware | **awaiting verification on real Windows (developed and verified with PowerShell 7 on macOS)** |
-
-**About the verification-status row.** The Windows implementation has already been verified extensively at the PowerShell language level — syntax checks, real execution of the scenarios, and byte-level comparison of messages and exit codes against the macOS implementation, all performed in the development environment (PowerShell 7 installed on macOS). What remains are **only the items that can be observed on Windows itself — the OS, its console, and the psmux binary**. Those items and how to check them are in [`docs/en/windows-verification.md`](docs/en/windows-verification.md). **Once every item in that document is recorded as "Pass", remove the Windows verification-status row above.** Do not remove it while a single item is still unperformed.
+| Verification status | developed and verified on real hardware | verified on real hardware (Windows 11 · PowerShell 7.6.4 · psmux 3.3.7) |
 
 Installing, authenticating and adding the agent CLIs (Claude Code, Codex CLI) to PATH is your responsibility; this tool does not touch any of that. The jump and list commands work fine without them.
 

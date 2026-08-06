@@ -2,7 +2,7 @@
 
 [한국어](../ko/install-psmux.md) | **English**
 
-Related: [README](../../README.en.md) · [macOS side](install-tmux.md) · [Troubleshooting](troubleshooting.md) · [Windows verification](windows-verification.md)
+Related: [README](../../README.en.md) · [macOS side](install-tmux.md) · [Troubleshooting](troubleshooting.md)
 
 psmux is a Windows-native, tmux-compatible multiplexer. `mtw_claude` and `mtw_codex` use it to create sessions. Without psmux the jump and list commands still work fine, but the agent commands are unusable.
 
@@ -85,7 +85,7 @@ tmux new-window     -n <session> -c <path> <agent command>    # called from insi
 - `-c` — the starting directory of the session (window).
 - Being inside or outside a session is detected from whether the `TMUX` environment variable is set. You can check it inside a session by printing `$env:TMUX`.
 
-> **Whether those two things actually work in psmux (`-A` / `-c` flag support, and `TMUX` being set inside a session) is pending verification on real Windows.** The procedure is in the "Top-priority premise checks" section of [`windows-verification.md`](windows-verification.md). If either one fails, it is not an individual command that breaks but a design premise — please open an issue.
+> **psmux supports both of these (`-A` / `-c` flag support, and `TMUX` being set inside a session)** — confirmed on real hardware with Windows 11 and psmux 3.3.7. If either one does not work in the psmux version you are running, it is not an individual command that breaks but a design premise — please open an issue and include your psmux version.
 
 ## 5. Basic operations
 
