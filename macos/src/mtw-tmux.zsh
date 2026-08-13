@@ -1,4 +1,4 @@
-# mtw-tmux v2.0.0
+# mtw-tmux v2.0.1
 # mw-terminal-worknav - macOS (zsh) tmux 애드온
 #
 # 설치 스크립트를 --with-tmux 로 실행했을 때만 ~/.mtw/mtw-tmux.zsh 로 복사되고,
@@ -73,10 +73,20 @@ __mtw_session() {
 __mtw_help_agents() {
   print -r -- ""
   print -r -- "에이전트 명령 (tmux 애드온)"
-  local key
+
+  # 본체 고정 명령 절과 같은 23열에 설명을 맞춘다. 표시 폭은 "mtw_" + 키 +
+  # " [이름]" 이고 한글이 두 칸을 차지하므로 11 + 키 길이다. 고정 여백이면
+  # 키 길이가 다를 때 열이 어긋나므로, 가장 긴 키에 맞춰 절 전체를 넓힌다.
+  local key width=23
+  for key in ${(k)MTW_AGENTS}; do
+    (( ${MTW_RESERVED[(Ie)$key]} )) && continue
+    (( ${#key} + 13 > width )) && width=$(( ${#key} + 13 ))
+  done
+
   for key in ${(ko)MTW_AGENTS}; do
     (( ${MTW_RESERVED[(Ie)$key]} )) && continue
-    print -r -- "  mtw_${key} [이름]        세션 생성 후 '${MTW_AGENTS[$key]}' 실행"
+    printf "  mtw_%s [이름]%*s세션 생성 후 '%s' 실행\n" \
+      "$key" $(( width - ${#key} - 11 )) "" "${MTW_AGENTS[$key]}"
   done
 }
 

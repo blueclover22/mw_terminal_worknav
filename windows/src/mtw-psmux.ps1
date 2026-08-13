@@ -1,4 +1,4 @@
-# mtw-psmux v2.0.0
+# mtw-psmux v2.0.1
 # mw-terminal-worknav - Windows (PowerShell 7) psmux 애드온
 #
 # 설치 스크립트를 -WithPsmux 로 실행했을 때만 ~/.mtw/mtw-psmux.ps1 로 복사되고,
@@ -84,9 +84,20 @@ function __mtw_session {
 function __mtw_help_agents {
     Write-Output ''
     Write-Output '에이전트 명령 (psmux 애드온)'
+
+    # 본체 고정 명령 절과 같은 23열에 설명을 맞춘다. 표시 폭은 "mtw_" + 키 +
+    # " [이름]" 이고 한글이 두 칸을 차지하므로 11 + 키 길이다. 고정 여백이면
+    # 키 길이가 다를 때 열이 어긋나므로, 가장 긴 키에 맞춰 절 전체를 넓힌다.
+    $width = 23
+    foreach ($key in $script:MTW_AGENTS.Keys) {
+        if ($script:MTW_RESERVED -contains $key) { continue }
+        if ($key.Length + 13 -gt $width) { $width = $key.Length + 13 }
+    }
+
     foreach ($key in ($script:MTW_AGENTS.Keys | Sort-Object)) {
         if ($script:MTW_RESERVED -contains $key) { continue }
-        Write-Output "  mtw_$key [이름]        세션 생성 후 '$($script:MTW_AGENTS[$key])' 실행"
+        $pad = ' ' * ($width - $key.Length - 11)
+        Write-Output "  mtw_$key [이름]${pad}세션 생성 후 '$($script:MTW_AGENTS[$key])' 실행"
     }
 }
 

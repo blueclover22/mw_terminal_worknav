@@ -42,7 +42,7 @@ mtw_help            # 전체 명령 안내
 | OS | macOS 12 이상 | Windows 10 / 11 |
 | 셸 | zsh (기본 셸) | PowerShell 7 이상 |
 | 멀티플렉서 | 불필요 (애드온을 쓸 때만 tmux) | 불필요 (애드온을 쓸 때만 psmux) |
-| 검증 상태 | 애드온 분리 이후 미검증 | 실기 검증 완료 (Windows 11 · PowerShell 7) |
+| 검증 상태 | 실기 검증 완료 (macOS 26 · zsh 5.9) | 실기 검증 완료 (Windows 11 · PowerShell 7) |
 
 기본 설치는 셸 외에 아무것도 요구하지 않습니다.
 
@@ -230,7 +230,7 @@ $script:MTW_AGENTS = [ordered]@{
 편집 후 새 터미널을 열거나 프로필을 다시 읽으면 `mtw_aider` 를 쓸 수 있습니다.
 
 - 키는 `mtw_<키>` 함수 이름이 되므로 **`list` · `new` · `rm` · `help` · `cd` 는 키로 쓸 수 없습니다.** 예약어를 쓰면 로드 시 stderr 로 경고가 나오고 **해당 항목만 건너뜁니다**(고정 명령이 덮어써지지 않습니다).
-- 값은 **단일 명령 이름**이어야 합니다. `claude --model x` 처럼 공백이 포함된 다중 토큰 명령은 v2.0.0 에서 지원하지 않습니다.
+- 값은 **단일 명령 이름**이어야 합니다. `claude --model x` 처럼 공백이 포함된 다중 토큰 명령은 v2.0.1 에서 지원하지 않습니다.
 - 저장소의 `macos/src/mtw-tmux.zsh` · `windows/src/mtw-psmux.ps1` 을 함께 고쳐 두면 재설치 후에도 유지됩니다. `~/.mtw/` 쪽만 고치면 설치 스크립트를 다시 실행할 때 덮어써집니다.
 
 자세한 내용은 [`docs/ko/configuration.md`](docs/ko/configuration.md) 를 보세요.
