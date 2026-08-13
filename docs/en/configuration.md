@@ -122,9 +122,9 @@ The `mtw_aider` command appears, and `mtw_help` output and tab-completion target
   mtw: 경고: 에이전트 키 'rm' 는 예약어(list new rm help cd) 와 겹쳐 건너뜁니다.
   ```
 
-  (Messages are Korean in v1.0.0. This one reads: "warning: agent key 'rm' collides with a reserved word (list new rm help cd), skipping.")
+  (Messages are Korean in v2.0.0. This one reads: "warning: agent key 'rm' collides with a reserved word (list new rm help cd), skipping.")
 
-- **The value must be a single command name.** The registry value is passed to tmux as one argument without word splitting, so multi-token commands containing spaces, such as `claude --model x`, are not supported in v1.0.0. If you want to add options, write a wrapper script and register its name instead.
+- **The value must be a single command name.** The registry value is passed to tmux as one argument without word splitting, so multi-token commands containing spaces, such as `claude --model x`, are not supported in v2.0.0. If you want to add options, write a wrapper script and register its name instead.
 - **The command must be on PATH.** This tool does not participate in installing, authenticating or adding agent CLIs to PATH.
 
 ### Making your edits survive

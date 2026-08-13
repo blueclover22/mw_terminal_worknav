@@ -6,7 +6,7 @@ Related: [README](../../README.en.md) · [Configuration](configuration.md) · [I
 
 Entries about the agent commands (`mtw_claude`, `mtw_codex`) and the multiplexer apply **only if you installed the add-on** — the tmux add-on on macOS, the psmux add-on on Windows.
 
-> Runtime messages are Korean in v1.0.0. Where a message is quoted below, an English gloss follows in parentheses.
+> Runtime messages are Korean in v2.0.0. Where a message is quoted below, an English gloss follows in parentheses.
 
 ---
 

@@ -230,7 +230,7 @@ $script:MTW_AGENTS = [ordered]@{
 편집 후 새 터미널을 열거나 프로필을 다시 읽으면 `mtw_aider` 를 쓸 수 있습니다.
 
 - 키는 `mtw_<키>` 함수 이름이 되므로 **`list` · `new` · `rm` · `help` · `cd` 는 키로 쓸 수 없습니다.** 예약어를 쓰면 로드 시 stderr 로 경고가 나오고 **해당 항목만 건너뜁니다**(고정 명령이 덮어써지지 않습니다).
-- 값은 **단일 명령 이름**이어야 합니다. `claude --model x` 처럼 공백이 포함된 다중 토큰 명령은 v1.0.0 에서 지원하지 않습니다.
+- 값은 **단일 명령 이름**이어야 합니다. `claude --model x` 처럼 공백이 포함된 다중 토큰 명령은 v2.0.0 에서 지원하지 않습니다.
 - 저장소의 `macos/src/mtw-tmux.zsh` · `windows/src/mtw-psmux.ps1` 을 함께 고쳐 두면 재설치 후에도 유지됩니다. `~/.mtw/` 쪽만 고치면 설치 스크립트를 다시 실행할 때 덮어써집니다.
 
 자세한 내용은 [`docs/ko/configuration.md`](docs/ko/configuration.md) 를 보세요.

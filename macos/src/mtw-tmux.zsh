@@ -1,4 +1,4 @@
-# mtw-tmux v1.0.0
+# mtw-tmux v2.0.0
 # mw-terminal-worknav - macOS (zsh) tmux 애드온
 #
 # 설치 스크립트를 --with-tmux 로 실행했을 때만 ~/.mtw/mtw-tmux.zsh 로 복사되고,

@@ -114,7 +114,7 @@ $ mtw_rm myApp
 등록 해제되었습니다: myApp (폴더는 그대로 남아 있습니다: /Users/minwoo/workspace/projects/myApp)
 ```
 
-> **Messages are in Korean in v1.0.0.** Both implementations emit byte-identical Korean strings; that byte equality is what the cross-OS verification is built on. Localizing the messages is out of scope for v1.0.0.
+> **Messages are in Korean in v2.0.0.** Both implementations emit byte-identical Korean strings; that byte equality is what the cross-OS verification is built on. Localizing the messages is out of scope for v2.0.0.
 
 - **Usable immediately after registering.** `mtw_new` reloads the list and regenerates the jump functions, so `mtw_cd_myApp` and tab completion work without restarting the terminal.
 - **The duplicate check is case-insensitive.** With `myApp` registered, `mtw_new MYAPP` is rejected. The name is stored exactly as you typed it.
@@ -232,7 +232,7 @@ $script:MTW_AGENTS = [ordered]@{
 Open a new terminal or reload your profile and `mtw_aider` is available.
 
 - The key becomes the `mtw_<key>` function name, so **`list`, `new`, `rm`, `help` and `cd` cannot be used as keys.** A reserved key produces a warning on stderr at load time and **only that entry is skipped** (the fixed command is never overwritten).
-- The value must be a **single command name**. Multi-token commands containing spaces, such as `claude --model x`, are not supported in v1.0.0.
+- The value must be a **single command name**. Multi-token commands containing spaces, such as `claude --model x`, are not supported in v2.0.0.
 - Edit `macos/src/mtw-tmux.zsh` / `windows/src/mtw-psmux.ps1` in the repository as well if you want the change to survive a reinstall. Editing only the copy under `~/.mtw/` means the next run of the install script overwrites it.
 
 See [`docs/en/configuration.md`](docs/en/configuration.md) for details.

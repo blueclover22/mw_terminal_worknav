@@ -1,4 +1,4 @@
-# mtw-psmux v1.0.0
+# mtw-psmux v2.0.0
 # mw-terminal-worknav - Windows (PowerShell 7) psmux 애드온
 #
 # 설치 스크립트를 -WithPsmux 로 실행했을 때만 ~/.mtw/mtw-psmux.ps1 로 복사되고,
