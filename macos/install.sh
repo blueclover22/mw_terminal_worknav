@@ -1,13 +1,20 @@
 #!/usr/bin/env zsh
-# mtw (mw-terminal-worknav) 설치 스크립트 - macOS (zsh + tmux)
+# mtw (mw-terminal-worknav) 설치 스크립트 - macOS (zsh)
 #
 # ~/.mtw/ 를 만들고 기능 본체를 복사한 뒤 ~/.zshrc 끝에 로더 블록을 추가한다.
 # src/ 는 스크립트 위치 기준으로 찾으므로 호출 디렉터리와 무관하다.
+#
+# 기본 설치는 이동·목록 명령만 넣는다. --with-tmux 를 주면 tmux 애드온까지 설치해
+# 에이전트 세션 명령(mtw_claude 등)이 함께 생긴다. 재실행이 곧 상태 선언이므로
+# --with-tmux 없이 다시 실행하면 이미 설치된 애드온은 제거된다.
+#
+# 호출 예: zsh ./macos/install.sh [--with-tmux]
 
 emulate -L zsh -o no_aliases
 
 typeset -r MTW_DIR="$HOME/.mtw"
 typeset -r MTW_BODY="$MTW_DIR/mtw.zsh"
+typeset -r MTW_ADDON="$MTW_DIR/mtw-tmux.zsh"
 typeset -r PROJECTS_FILE="$MTW_DIR/projects"
 typeset -r PROFILE="$HOME/.zshrc"
 typeset -r MARKER_START="# >>> mtw (mw-terminal-worknav) >>>"
@@ -15,9 +22,27 @@ typeset -r MARKER_END="# <<< mtw (mw-terminal-worknav) <<<"
 
 typeset -r SCRIPT_DIR="${0:A:h}"
 typeset -r SRC_FILE="$SCRIPT_DIR/src/mtw.zsh"
+typeset -r SRC_ADDON="$SCRIPT_DIR/src/mtw-tmux.zsh"
+
+typeset -i with_tmux=0
+typeset arg
+for arg in "$@"; do
+  case "$arg" in
+    --with-tmux) with_tmux=1 ;;
+    *)
+      print -ru2 -- "mtw: 알 수 없는 옵션입니다: $arg"
+      exit 1
+      ;;
+  esac
+done
 
 if [[ ! -f "$SRC_FILE" ]]; then
   print -ru2 -- "mtw: 오류: 기능 본체를 찾을 수 없습니다: $SRC_FILE"
+  exit 1
+fi
+
+if (( with_tmux )) && [[ ! -f "$SRC_ADDON" ]]; then
+  print -ru2 -- "mtw: 오류: tmux 애드온을 찾을 수 없습니다: $SRC_ADDON"
   exit 1
 fi
 
@@ -43,6 +68,23 @@ fi
 if ! command cp -- "$SRC_FILE" "$MTW_BODY"; then
   print -ru2 -- "mtw: 오류: 기능 본체를 복사하지 못했습니다: $MTW_BODY"
   exit 1
+fi
+
+# 2-1. tmux 애드온 — --with-tmux 면 복사, 아니면 이미 있는 것을 제거한다.
+# 남겨 두면 플래그 없이 재설치한 뒤에도 에이전트 명령이 살아 있어 설치 상태를
+# 명령만 보고는 알 수 없게 된다. 재실행이 곧 상태 선언이 되도록 맞춘다.
+if (( with_tmux )); then
+  if ! command cp -- "$SRC_ADDON" "$MTW_ADDON"; then
+    print -ru2 -- "mtw: 오류: tmux 애드온을 복사하지 못했습니다: $MTW_ADDON"
+    exit 1
+  fi
+  print -r -- "mtw: tmux 애드온을 설치했습니다: $MTW_ADDON"
+elif [[ -f "$MTW_ADDON" ]]; then
+  if ! command rm -f -- "$MTW_ADDON"; then
+    print -ru2 -- "mtw: 오류: tmux 애드온을 제거하지 못했습니다: $MTW_ADDON"
+    exit 1
+  fi
+  print -r -- "mtw: tmux 애드온을 제거했습니다 (다시 설치하려면 --with-tmux 를 주세요)."
 fi
 
 # 3. ~/.mtw/projects — 없으면 빈 파일로 생성, 있으면 보존
@@ -134,6 +176,10 @@ print -r -- "  mtw_new <이름>         현재 폴더를 목록에 등록"
 print -r -- "  mtw_rm <이름>          목록에서 등록 해제"
 print -r -- "  mtw_help               전체 명령 안내"
 print -r -- "  mtw_cd_<이름>          등록된 경로로 이동"
+if (( with_tmux )); then
+  print -r -- "  mtw_claude [이름]      tmux 세션 생성 후 Claude Code 실행"
+  print -r -- "  mtw_codex [이름]       tmux 세션 생성 후 Codex CLI 실행"
+fi
 print -r -- ""
 print -r -- "이 스크립트는 별도 프로세스에서 실행되어 현재 터미널에는 반영되지 않습니다."
 print -r -- "새 터미널을 열거나 다음 명령으로 프로필을 다시 읽으세요: source ~/.zshrc"

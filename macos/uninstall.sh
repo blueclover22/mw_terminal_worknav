@@ -1,13 +1,14 @@
 #!/usr/bin/env zsh
-# mtw (mw-terminal-worknav) 제거 스크립트 - macOS (zsh + tmux)
+# mtw (mw-terminal-worknav) 제거 스크립트 - macOS (zsh)
 #
-# ~/.zshrc 에서 로더 블록을 제거하고 ~/.mtw/mtw.zsh 를 삭제한다.
+# ~/.zshrc 에서 로더 블록을 제거하고 ~/.mtw/mtw.zsh 와 tmux 애드온을 삭제한다.
 # --remove-projects 지정 시 ~/.mtw/ 전체를 삭제한다 (기본값은 목록 보존).
 
 emulate -L zsh -o no_aliases
 
 typeset -r MTW_DIR="$HOME/.mtw"
 typeset -r MTW_BODY="$MTW_DIR/mtw.zsh"
+typeset -r MTW_ADDON="$MTW_DIR/mtw-tmux.zsh"
 typeset -r PROFILE="$HOME/.zshrc"
 typeset -r MARKER_START="# >>> mtw (mw-terminal-worknav) >>>"
 typeset -r MARKER_END="# <<< mtw (mw-terminal-worknav) <<<"
@@ -104,6 +105,15 @@ if [[ -f "$MTW_BODY" ]]; then
     exit 1
   fi
   print -r -- "mtw: 기능 본체를 삭제했습니다: $MTW_BODY"
+fi
+
+# 2-1. ~/.mtw/mtw-tmux.zsh 삭제 (--with-tmux 로 설치했을 때만 존재한다)
+if [[ -f "$MTW_ADDON" ]]; then
+  if ! command rm -f -- "$MTW_ADDON"; then
+    print -ru2 -- "mtw: 오류: tmux 애드온을 삭제하지 못했습니다: $MTW_ADDON"
+    exit 1
+  fi
+  print -r -- "mtw: tmux 애드온을 삭제했습니다: $MTW_ADDON"
 fi
 
 # 3. --remove-projects 지정 시 ~/.mtw/ 전체 삭제 (프로젝트 목록 포함, 백업 선행)

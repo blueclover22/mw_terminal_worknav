@@ -4,6 +4,8 @@
 
 관련 문서: [README](../../README.md) · [설정 파일](configuration.md) · [tmux 설치](install-tmux.md) · [psmux 설치](install-psmux.md)
 
+에이전트 명령(`mtw_claude` · `mtw_codex`)과 멀티플렉서에 관한 항목은 **애드온을 설치한 경우에만** 해당합니다 — macOS 는 tmux 애드온, Windows 는 psmux 애드온입니다.
+
 ---
 
 ## 설치 직후 `mtw_` 명령이 하나도 없다
@@ -39,6 +41,33 @@ ls -l ~/.mtw/                                 # macOS: mtw.zsh 가 있어야 합
 ```powershell
 Get-ChildItem ~/.mtw/                         # Windows: mtw.ps1 이 있어야 합니다
 ```
+
+---
+
+## 재설치했더니 `mtw_claude` · `mtw_codex` 가 사라졌다
+
+**정상 동작입니다.** 에이전트 명령은 멀티플렉서 애드온이 제공하며, 애드온은 설치 스크립트에 **플래그를 줄 때만** 설치됩니다. 플래그 없이 재설치하면 이미 있던 애드온은 제거됩니다 — 재실행이 곧 설치 상태 선언이기 때문입니다.
+
+제거될 때 아래 메시지가 출력됩니다.
+
+```
+mtw: tmux 애드온을 제거했습니다 (다시 설치하려면 --with-tmux 를 주세요).      # macOS
+mtw: psmux 애드온을 제거했습니다 (다시 설치하려면 -WithPsmux 를 주세요).     # Windows
+```
+
+**해결** — 플래그를 주어 다시 설치하세요.
+
+```bash
+zsh ./macos/install.sh --with-tmux                          # macOS
+```
+
+```powershell
+pwsh -NoProfile -File .\windows\install.ps1 -WithPsmux      # Windows
+```
+
+애드온 파일이 실제로 있는지는 `~/.mtw/` 에서 확인합니다 — macOS 는 `mtw-tmux.zsh`, Windows 는 `mtw-psmux.ps1` 입니다. 파일이 있는데도 명령이 없다면 프로필을 다시 읽지 않은 것입니다.
+
+> **애드온 파일을 직접 편집해 에이전트를 추가했다면 그 내용도 함께 사라집니다.** 저장소의 `macos/src/mtw-tmux.zsh` · `windows/src/mtw-psmux.ps1` 을 고쳐 두어야 재설치 후에도 유지됩니다.
 
 ---
 
@@ -236,4 +265,4 @@ abc\ndef\n    →  abc\ndef\n     변화 없음
 
 ## 그 밖의 문제
 
-재현 절차와 함께 저장소 이슈로 남겨 주세요. Windows 환경에서 겪은 문제라면 OS 버전 · `pwsh -v` · `psmux -V` · 콘솔 종류(Windows Terminal / 레거시 콘솔)를 함께 적어 주면 원인 파악이 빨라집니다.
+재현 절차와 함께 저장소 이슈로 남겨 주세요. Windows 환경에서 겪은 문제라면 OS 버전 · `pwsh -v` · 콘솔 종류(Windows Terminal / 레거시 콘솔)를 함께 적어 주면 원인 파악이 빨라집니다. tmux 애드온과 관련된 문제라면 `psmux -V` 도 함께 적어 주세요.

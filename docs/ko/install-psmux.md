@@ -2,9 +2,17 @@
 
 **한국어** | [English](../en/install-psmux.md)
 
-psmux 는 Windows 네이티브 tmux 호환 멀티플렉서입니다. `mtw_claude` · `mtw_codex` 가 세션을 만들 때 사용합니다. psmux 가 없어도 이동·목록 명령은 정상 동작하지만 에이전트 명령은 쓸 수 없습니다.
+psmux 는 Windows 네이티브 tmux 호환 멀티플렉서입니다.
 
-관련 문서: [README](../../README.md) · [macOS 쪽 설치](install-tmux.md) · [문제 해결](troubleshooting.md)
+**이 문서는 Windows 에서 psmux 애드온을 설치한 경우에만 해당합니다.** 기본 설치(이동·목록 명령)는 psmux 를 요구하지 않습니다. 애드온을 설치하면 `mtw_claude` · `mtw_codex` 가 psmux 세션을 만들고 그 안에서 에이전트를 실행합니다.
+
+```powershell
+pwsh -NoProfile -File .\windows\install.ps1 -WithPsmux
+```
+
+macOS 쪽 멀티플렉서는 tmux 이며 애드온도 따로입니다 — [tmux 설치](install-tmux.md) 를 보세요.
+
+관련 문서: [README](../../README.md) · [설정 파일](configuration.md) · [macOS 쪽 설치](install-tmux.md) · [문제 해결](troubleshooting.md)
 
 ## 1. 먼저 — PowerShell 7 이 필요합니다
 
@@ -108,12 +116,12 @@ mtw_codex myApp      # 세션 안이므로 새 창에서 Codex CLI 실행
 
 ## 6. mtw 설치·제거 명령 (참고)
 
-psmux 설치가 끝났다면 mtw 설치는 다음과 같습니다.
+psmux 설치가 끝났다면 mtw 설치는 다음과 같습니다. 에이전트 명령을 쓰려면 **`-WithPsmux` 를 반드시 붙이세요** — 붙이지 않으면 이동·목록 명령만 설치되고, 이미 있던 애드온은 제거됩니다.
 
 ```powershell
 git clone https://github.com/blueclover22/mw-terminal-worknav.git
 cd mw-terminal-worknav
-pwsh -NoProfile -File .\windows\install.ps1
+pwsh -NoProfile -File .\windows\install.ps1 -WithPsmux
 ```
 
 제거는 다음과 같습니다.
@@ -127,8 +135,16 @@ pwsh -NoProfile -File .\windows\uninstall.ps1 -RemoveProjects    # ~\.mtw\ 전�
 
 ## 7. 제거
 
+psmux 자체를 지우려면:
+
 ```powershell
 winget uninstall psmux
 ```
 
 psmux 를 지워도 `mtw_cd_*` · `mtw_list` · `mtw_new` · `mtw_rm` 은 그대로 동작합니다. 에이전트 명령만 쓸 수 없게 됩니다.
+
+애드온 쪽만 정리하려면 설치 스크립트를 **플래그 없이** 다시 실행하세요. 애드온 파일이 삭제되고 에이전트 명령이 사라집니다.
+
+```powershell
+pwsh -NoProfile -File .\windows\install.ps1
+```

@@ -11,6 +11,8 @@
 | `~/.mtw/projects` | 등록된 프로젝트 목록 | 설치 스크립트가 빈 파일로 생성 (이미 있으면 보존) |
 | `~/.mtw/mtw.zsh` (macOS) | 기능 본체 | 설치 스크립트가 `macos/src/mtw.zsh` 를 복사 |
 | `~/.mtw/mtw.ps1` (Windows) | 기능 본체 | 설치 스크립트가 `windows/src/mtw.ps1` 을 복사 |
+| `~/.mtw/mtw-tmux.zsh` (macOS) | tmux 애드온 | `--with-tmux` 로 설치했을 때만 복사 |
+| `~/.mtw/mtw-psmux.ps1` (Windows) | psmux 애드온 | `-WithPsmux` 로 설치했을 때만 복사 |
 
 ---
 
@@ -70,9 +72,11 @@ project=/Users/minwoo/workspace/projects/project
 
 ## 2. 에이전트 레지스트리 — 에이전트 추가
 
+> **멀티플렉서 애드온(macOS = tmux · Windows = psmux)을 설치한 경우에만 해당합니다.** 기본 설치에는 에이전트 명령이 없습니다.
+
 `mtw_claude` 와 `mtw_codex` 는 실행하는 명령만 다르고 나머지 로직(세션명 산출, 경로 결정, 세션 내부 판별, 오류 처리)이 완전히 같습니다. 그래서 함수를 따로 두지 않고 **레지스트리 한 줄에서 함수를 자동 생성**합니다. 에이전트 추가는 한 줄 추가로 끝납니다.
 
-### macOS — `~/.mtw/mtw.zsh` 상단
+### macOS — `~/.mtw/mtw-tmux.zsh` 상단
 
 ```zsh
 typeset -gA MTW_AGENTS
@@ -85,7 +89,7 @@ MTW_AGENTS=(
 
 키와 값을 공백으로 구분해 나열합니다. 왼쪽이 키(`mtw_<키>` 명령이 됨), 오른쪽이 실행할 명령입니다.
 
-### Windows — `~/.mtw/mtw.ps1` 상단
+### Windows — `~/.mtw/mtw-psmux.ps1` 상단
 
 ```powershell
 $script:MTW_AGENTS = [ordered]@{
@@ -123,12 +127,14 @@ source ~/.zshrc      # macOS
 
 ### 편집한 내용을 유지하려면
 
-`~/.mtw/mtw.zsh` · `~/.mtw/mtw.ps1` 은 설치 스크립트가 저장소에서 복사한 파일이라, **설치 스크립트를 다시 실행하면 덮어써집니다.** 추가한 에이전트를 계속 쓰려면 저장소의 원본도 함께 고쳐 두세요.
+`~/.mtw/` 안의 파일은 설치 스크립트가 저장소에서 복사한 것이라, **설치 스크립트를 다시 실행하면 덮어써집니다.** 추가한 에이전트를 계속 쓰려면 저장소의 원본도 함께 고쳐 두세요.
 
 | OS | 저장소 원본 |
 |---|---|
-| macOS | `macos/src/mtw.zsh` |
-| Windows | `windows/src/mtw.ps1` |
+| macOS | `macos/src/mtw-tmux.zsh` |
+| Windows | `windows/src/mtw-psmux.ps1` |
+
+애드온은 **플래그를 줄 때만** 복사됩니다. macOS 는 `--with-tmux`, Windows 는 `-WithPsmux` 없이 재설치하면 애드온 파일 자체가 삭제되므로, 편집한 내용도 함께 사라집니다.
 
 ---
 
@@ -152,5 +158,6 @@ if (Test-Path "$HOME\.mtw\mtw.ps1") { . "$HOME\.mtw\mtw.ps1" }
 # <<< mtw (mw-terminal-worknav) <<<
 ```
 
+- **애드온은 이 블록이 아니라 기능 본체가 읽습니다.** 본체 마지막 줄이 애드온 파일(`~/.mtw/mtw-tmux.zsh` · `~/.mtw/mtw-psmux.ps1`)의 존재를 확인하고 있으면 로드합니다. 그래서 로더 블록은 애드온 유무와 무관하게 늘 위 세 줄이며, 이미 설치된 환경에서 애드온만 켜고 끄는 데 프로필 수정이 필요 없습니다.
 - **macOS 에서는 이 블록이 `.zshrc` 의 끝에 있어야 합니다.** 탭 자동완성 등록에 `compdef` 가 필요한데, `compdef` 는 `compinit` 이 실행된 뒤에만 존재하기 때문입니다. 블록을 위로 옮기면 다른 기능은 정상이고 **자동완성만 동작하지 않습니다**([문제 해결](troubleshooting.md) 참고).
 - 마커가 한 쌍(시작 1회 + 종료 1회, 시작이 앞)이 아니면 설치·제거 스크립트는 **프로필을 건드리지 않고 중단**합니다. 사용자가 직접 정리하도록 안내만 합니다.

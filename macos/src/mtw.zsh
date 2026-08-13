@@ -1,23 +1,13 @@
 # mtw v1.0.0
-# mw-terminal-worknav - macOS (zsh + tmux) 기능 본체
+# mw-terminal-worknav - macOS (zsh) 기능 본체
 #
 # 설치 스크립트가 ~/.mtw/mtw.zsh 로 복사하고 ~/.zshrc 의 로더 블록이 source 한다.
-
-# ── 에이전트 레지스트리 ──────────────────────────────────────────────
-# "키 실행명령" 한 줄 추가로 mtw_<키> 명령이 생긴다. 키는 함수 이름이 되므로
-# 예약어(아래 MTW_RESERVED)는 쓸 수 없다.
-typeset -gA MTW_AGENTS
-MTW_AGENTS=(
-  claude claude
-  codex  codex
-)
-
-# 고정 명령과 겹치면 안 되는 예약어 (에이전트 레지스트리 키 금지 목록)
-typeset -ga MTW_RESERVED
-MTW_RESERVED=(list new rm help cd)
+# 이동·목록 명령만 담고 멀티플렉서에 의존하지 않는다. 에이전트 세션 명령은
+# 선택 설치되는 tmux 애드온(mtw-tmux.zsh)이 제공하며 이 파일 마지막에서 로드된다.
 
 # ── 설정 ─────────────────────────────────────────────────────────────
 typeset -g MTW_PROJECTS_FILE="$HOME/.mtw/projects"
+typeset -g MTW_ADDON_TMUX="$HOME/.mtw/mtw-tmux.zsh"
 typeset -gA MTW_PROJECTS
 
 # ── 내부 함수 ────────────────────────────────────────────────────────
@@ -68,69 +58,12 @@ __mtw_register() {
   done
 }
 
-# 레지스트리(MTW_AGENTS) → mtw_<에이전트> 함수 생성.
-__mtw_register_agents() {
-  local key cmd
-  for key in ${(k)MTW_AGENTS}; do
-    if (( ${MTW_RESERVED[(Ie)$key]} )); then
-      print -ru2 -- "mtw: 경고: 에이전트 키 '${key}' 는 예약어(${MTW_RESERVED}) 와 겹쳐 건너뜁니다."
-      continue
-    fi
-    cmd="${MTW_AGENTS[$key]}"
-    eval "mtw_${key}() { __mtw_session ${(qq)cmd} \"\$@\" }"
-  done
-}
-
-# 에이전트 공통 실행 로직 — 세션명/경로 결정 후 tmux 로 세션(또는 창) 생성.
-__mtw_session() {
-  local agent_cmd="$1"
-  local name="$2"
-  local target_path session key matched_key
-
-  if [[ -n "$name" ]]; then
-    # 이름 매칭은 대소문자를 무시한다 — mtw_new 중복 검사 · mtw_rm 과 같은 규칙.
-    # 세션명도 입력 표기가 아니라 등록된 표기를 쓴다.
-    matched_key=""
-    for key in ${(k)MTW_PROJECTS}; do
-      if [[ "${key:l}" == "${name:l}" ]]; then
-        matched_key="$key"
-        break
-      fi
-    done
-    if [[ -z "$matched_key" ]]; then
-      print -ru2 -- "mtw: 오류: 등록되지 않은 이름입니다: $name"
-      return 1
-    fi
-    target_path="${MTW_PROJECTS[$matched_key]}"
-    session="$matched_key"
-  else
-    target_path="$PWD"
-    session="${PWD:t}"
-  fi
-
-  session="${session//[^A-Za-z0-9_-]/_}"
-
-  if [[ -n "$TMUX" ]]; then
-    tmux new-window -n "$session" -c "$target_path" "$agent_cmd"
-  else
-    tmux new-session -A -s "$session" -c "$target_path" "$agent_cmd"
-  fi
-}
-
 # 자동완성 후보 제공(zsh 컴플리션 컨텍스트) 및 등록(--register 호출 시).
+# 등록 대상은 본체가 제공하는 mtw_rm. 에이전트 명령은 애드온이 따로 등록한다.
 __mtw_complete() {
   if [[ "$1" == "--register" ]]; then
     (( $+functions[compdef] )) || return 0
-
-    local -a targets
-    targets=(mtw_rm)
-    local key
-    for key in ${(k)MTW_AGENTS}; do
-      (( ${MTW_RESERVED[(Ie)$key]} )) && continue
-      targets+=("mtw_${key}")
-    done
-
-    compdef __mtw_complete $targets
+    compdef __mtw_complete mtw_rm
     return 0
   fi
 
@@ -298,18 +231,25 @@ mtw_help() {
   print -r -- "  mtw_rm <이름>          목록에서 등록 해제 (폴더는 삭제하지 않음)"
   print -r -- "  mtw_help               이 도움말 출력"
   print -r -- "  mtw_cd_<이름>          등록된 경로로 이동"
-  print -r -- ""
-  print -r -- "에이전트 명령"
-  local key
-  for key in ${(ko)MTW_AGENTS}; do
-    (( ${MTW_RESERVED[(Ie)$key]} )) && continue
-    print -r -- "  mtw_${key} [이름]        세션 생성 후 '${MTW_AGENTS[$key]}' 실행"
-  done
+
+  # 애드온이 로드되어 있으면 자기 명령 절을 덧붙인다.
+  (( $+functions[__mtw_help_agents] )) && __mtw_help_agents
+
+  return 0
 }
 
 # ── 초기화 ───────────────────────────────────────────────────────────
-# 목록 적재 → 이동 함수 생성 → 에이전트 함수 생성 → 자동완성 등록
+# 목록 적재 → 이동 함수 생성 → 자동완성 등록 → 애드온(있으면) 로드
 __mtw_load
 __mtw_register
-__mtw_register_agents
 __mtw_complete --register
+
+# tmux 애드온은 설치 스크립트를 --with-tmux 로 실행했을 때만 존재한다. 로더 블록이
+# 아니라 여기서 읽는 이유는, 이미 프로필에 로더 블록이 있는 설치본에 줄을 더
+# 넣으려면 프로필 재작성이 필요해서다 — 본체 갱신만으로 애드온 유무를 반영한다.
+#
+# && 가 아니라 if 를 쓰는 이유 — 애드온이 없을 때 source 된 파일의 종료 상태가
+# 1 이 되고, 그것이 .zshrc 의 마지막 상태로 남아 첫 프롬프트에 실패로 보인다.
+if [[ -f "$MTW_ADDON_TMUX" ]]; then
+  source "$MTW_ADDON_TMUX"
+fi

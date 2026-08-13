@@ -4,6 +4,8 @@
 
 Related: [README](../../README.en.md) · [Configuration](configuration.md) · [Installing tmux](install-tmux.md) · [Installing psmux](install-psmux.md)
 
+Entries about the agent commands (`mtw_claude`, `mtw_codex`) and the multiplexer apply **only if you installed the add-on** — the tmux add-on on macOS, the psmux add-on on Windows.
+
 > Runtime messages are Korean in v1.0.0. Where a message is quoted below, an English gloss follows in parentheses.
 
 ---
@@ -41,6 +43,33 @@ ls -l ~/.mtw/                                 # macOS: mtw.zsh must be there
 ```powershell
 Get-ChildItem ~/.mtw/                         # Windows: mtw.ps1 must be there
 ```
+
+---
+
+## `mtw_claude` and `mtw_codex` disappeared after reinstalling
+
+**That is the intended behavior.** The agent commands come from the multiplexer add-on, and the add-on is installed **only when you pass the flag**. Reinstalling without it removes an add-on that was already there — rerunning the installer declares the installed state.
+
+It prints this when removing:
+
+```
+mtw: tmux 애드온을 제거했습니다 (다시 설치하려면 --with-tmux 를 주세요).      # macOS
+mtw: psmux 애드온을 제거했습니다 (다시 설치하려면 -WithPsmux 를 주세요).     # Windows
+```
+
+**Fix** — reinstall with the flag.
+
+```bash
+zsh ./macos/install.sh --with-tmux                          # macOS
+```
+
+```powershell
+pwsh -NoProfile -File .\windows\install.ps1 -WithPsmux      # Windows
+```
+
+Check `~/.mtw/` for the add-on file itself — `mtw-tmux.zsh` on macOS, `mtw-psmux.ps1` on Windows. If the file is there but the commands are not, you have not reloaded your profile.
+
+> **Agents you added by editing the add-on file directly disappear with it.** Edit `macos/src/mtw-tmux.zsh` / `windows/src/mtw-psmux.ps1` in the repository to keep them across reinstalls.
 
 ---
 
@@ -242,4 +271,4 @@ A backup (`*.bak-YYYYMMDD-HHMMSS`) is always created before the profile is touch
 
 ## Anything else
 
-Please open an issue with the steps to reproduce. If you hit it on Windows, include your OS version, `pwsh -v`, `psmux -V` and the console type (Windows Terminal or the legacy console) — it makes the cause much easier to pin down.
+Please open an issue with the steps to reproduce. If you hit it on Windows, include your OS version, `pwsh -v` and the console type (Windows Terminal or the legacy console) — it makes the cause much easier to pin down. For anything involving the tmux add-on, add `psmux -V` as well.

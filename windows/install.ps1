@@ -1,9 +1,13 @@
-# mtw (mw-terminal-worknav) 설치 스크립트 - Windows (PowerShell 7 + tmux/psmux)
+# mtw (mw-terminal-worknav) 설치 스크립트 - Windows (PowerShell 7)
 #
 # ~\.mtw\ 를 만들고 기능 본체를 복사한 뒤 $PROFILE 끝에 로더 블록을 추가한다.
 # src\ 는 스크립트 위치 기준으로 찾으므로 호출 디렉터리와 무관하다.
 #
-# 호출 예: pwsh -NoProfile -File .\windows\install.ps1
+# 기본 설치는 이동·목록 명령만 넣는다. -WithPsmux 를 주면 psmux 애드온까지 설치해
+# 에이전트 세션 명령(mtw_claude 등)이 함께 생긴다. 재실행이 곧 상태 선언이므로
+# -WithPsmux 없이 다시 실행하면 이미 설치된 애드온은 제거된다.
+#
+# 호출 예: pwsh -NoProfile -File .\windows\install.ps1 [-WithPsmux]
 # 파일 조작 cmdlet 은 모듈 한정 이름으로 호출한다 — 명령 해석 우선순위가
 # Alias -> Function -> Cmdlet 이라 사용자 프로필의 함수가 Copy-Item 같은 정식
 # 이름까지 가로챈다. -NoProfile 은 호출자 쪽 플래그라 이중 방어일 뿐이다.
@@ -60,14 +64,34 @@ function __mtw_unique_backup_path {
 
 $MTW_DIR = Microsoft.PowerShell.Management\Join-Path $HOME '.mtw'
 $MTW_BODY = Microsoft.PowerShell.Management\Join-Path $MTW_DIR 'mtw.ps1'
+$MTW_ADDON = Microsoft.PowerShell.Management\Join-Path $MTW_DIR 'mtw-psmux.ps1'
 $PROJECTS_FILE = Microsoft.PowerShell.Management\Join-Path $MTW_DIR 'projects'
 $MARKER_START = '# >>> mtw (mw-terminal-worknav) >>>'
 $MARKER_END = '# <<< mtw (mw-terminal-worknav) <<<'
 
 $SRC_FILE = Microsoft.PowerShell.Management\Join-Path $PSScriptRoot 'src' 'mtw.ps1'
+$SRC_ADDON = Microsoft.PowerShell.Management\Join-Path $PSScriptRoot 'src' 'mtw-psmux.ps1'
+
+# 인자 파싱 — param([switch]) 는 접두어 매칭·대소문자 무시가 기본이고 pwsh -File
+# 은 모르는 인자를 조용히 무시한다. $args 를 정확 일치·대소문자 구분으로 검사한다.
+$WithPsmux = $false
+foreach ($arg in $args) {
+    if ($arg -ceq '-WithPsmux') {
+        $WithPsmux = $true
+    }
+    else {
+        $host.UI.WriteErrorLine("mtw: 알 수 없는 옵션입니다: $arg")
+        exit 1
+    }
+}
 
 if (-not (Microsoft.PowerShell.Management\Test-Path -LiteralPath $SRC_FILE)) {
     $host.UI.WriteErrorLine("mtw: 오류: 기능 본체를 찾을 수 없습니다: $SRC_FILE")
+    exit 1
+}
+
+if ($WithPsmux -and -not (Microsoft.PowerShell.Management\Test-Path -LiteralPath $SRC_ADDON)) {
+    $host.UI.WriteErrorLine("mtw: 오류: psmux 애드온을 찾을 수 없습니다: $SRC_ADDON")
     exit 1
 }
 
@@ -96,6 +120,30 @@ try {
 catch {
     $host.UI.WriteErrorLine("mtw: 오류: 기능 본체를 복사하지 못했습니다: $MTW_BODY")
     exit 1
+}
+
+# 2-1. psmux 애드온 - -WithPsmux 면 복사, 아니면 이미 있는 것을 제거한다.
+# 남겨 두면 플래그 없이 재설치한 뒤에도 에이전트 명령이 살아 있어 설치 상태를
+# 명령만 보고는 알 수 없게 된다. 재실행이 곧 상태 선언이 되도록 맞춘다.
+if ($WithPsmux) {
+    try {
+        Microsoft.PowerShell.Management\Copy-Item -LiteralPath $SRC_ADDON -Destination $MTW_ADDON -Force -ErrorAction Stop
+    }
+    catch {
+        $host.UI.WriteErrorLine("mtw: 오류: psmux 애드온을 복사하지 못했습니다: $MTW_ADDON")
+        exit 1
+    }
+    Write-Output "mtw: psmux 애드온을 설치했습니다: $MTW_ADDON"
+}
+elseif (Microsoft.PowerShell.Management\Test-Path -LiteralPath $MTW_ADDON -PathType Leaf) {
+    try {
+        Microsoft.PowerShell.Management\Remove-Item -LiteralPath $MTW_ADDON -Force -ErrorAction Stop
+    }
+    catch {
+        $host.UI.WriteErrorLine("mtw: 오류: psmux 애드온을 제거하지 못했습니다: $MTW_ADDON")
+        exit 1
+    }
+    Write-Output 'mtw: psmux 애드온을 제거했습니다 (다시 설치하려면 -WithPsmux 를 주세요).'
 }
 
 # 3. ~\.mtw\projects - 없으면 빈 파일로 생성, 있으면 보존
@@ -206,6 +254,10 @@ Write-Output '  mtw_new <이름>         현재 폴더를 목록에 등록'
 Write-Output '  mtw_rm <이름>          목록에서 등록 해제'
 Write-Output '  mtw_help               전체 명령 안내'
 Write-Output '  mtw_cd_<이름>          등록된 경로로 이동'
+if ($WithPsmux) {
+    Write-Output '  mtw_claude [이름]      psmux 세션 생성 후 Claude Code 실행'
+    Write-Output '  mtw_codex [이름]       psmux 세션 생성 후 Codex CLI 실행'
+}
 Write-Output ''
 Write-Output '이 스크립트는 별도 프로세스에서 실행되어 현재 세션에는 반영되지 않습니다.'
 Write-Output '새 세션을 열거나 다음 명령으로 프로필을 다시 읽으세요: . $PROFILE'

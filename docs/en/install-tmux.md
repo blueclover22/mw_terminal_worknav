@@ -2,9 +2,15 @@
 
 [한국어](../ko/install-tmux.md) | **English**
 
-Related: [README](../../README.en.md) · [Windows side](install-psmux.md) · [Troubleshooting](troubleshooting.md)
+**This document applies only if you installed the tmux add-on on macOS.** The default install (jump and list commands) does not require tmux. With the add-on, `mtw_claude` and `mtw_codex` create a tmux session and run the agent inside it.
 
-`mtw_claude` and `mtw_codex` create a tmux session and run the agent inside it. Without tmux the jump and list commands still work fine, but the agent commands are unusable.
+```bash
+zsh ./macos/install.sh --with-tmux
+```
+
+On Windows the multiplexer is psmux and the add-on is separate — see [Installing psmux](install-psmux.md).
+
+Related: [README](../../README.en.md) · [Configuration](configuration.md) · [Windows side](install-psmux.md) · [Troubleshooting](troubleshooting.md)
 
 ## 1. Install
 
@@ -82,8 +88,16 @@ Official documentation: [the tmux wiki](https://github.com/tmux/tmux/wiki)
 
 ## 6. Uninstalling
 
+To remove tmux itself:
+
 ```bash
 brew uninstall tmux
 ```
 
 Removing tmux leaves `mtw_cd_*`, `mtw_list`, `mtw_new` and `mtw_rm` working. Only the agent commands become unusable.
+
+To remove just the add-on, rerun the install script **without the flag**. The add-on file is deleted and the agent commands disappear.
+
+```bash
+zsh ./macos/install.sh
+```

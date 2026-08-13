@@ -1,6 +1,6 @@
-# mtw (mw-terminal-worknav) 제거 스크립트 - Windows (PowerShell 7 + tmux/psmux)
+# mtw (mw-terminal-worknav) 제거 스크립트 - Windows (PowerShell 7)
 #
-# $PROFILE 에서 로더 블록을 제거하고 ~\.mtw\mtw.ps1 을 삭제한다.
+# $PROFILE 에서 로더 블록을 제거하고 ~\.mtw\mtw.ps1 과 psmux 애드온을 삭제한다.
 # -RemoveProjects 지정 시 ~\.mtw\ 전체를 삭제한다 (기본값은 목록 보존).
 #
 # 호출 예: pwsh -NoProfile -File .\windows\uninstall.ps1 [-RemoveProjects]
@@ -60,6 +60,7 @@ function __mtw_unique_backup_path {
 
 $MTW_DIR = Microsoft.PowerShell.Management\Join-Path $HOME '.mtw'
 $MTW_BODY = Microsoft.PowerShell.Management\Join-Path $MTW_DIR 'mtw.ps1'
+$MTW_ADDON = Microsoft.PowerShell.Management\Join-Path $MTW_DIR 'mtw-psmux.ps1'
 $MARKER_START = '# >>> mtw (mw-terminal-worknav) >>>'
 $MARKER_END = '# <<< mtw (mw-terminal-worknav) <<<'
 
@@ -160,6 +161,18 @@ if (Microsoft.PowerShell.Management\Test-Path -LiteralPath $MTW_BODY -PathType L
         exit 1
     }
     Write-Output "mtw: 기능 본체를 삭제했습니다: $MTW_BODY"
+}
+
+# 2-1. ~\.mtw\mtw-psmux.ps1 삭제 (-WithPsmux 로 설치했을 때만 존재한다)
+if (Microsoft.PowerShell.Management\Test-Path -LiteralPath $MTW_ADDON -PathType Leaf) {
+    try {
+        Microsoft.PowerShell.Management\Remove-Item -LiteralPath $MTW_ADDON -Force -ErrorAction Stop
+    }
+    catch {
+        $host.UI.WriteErrorLine("mtw: 오류: psmux 애드온을 삭제하지 못했습니다: $MTW_ADDON")
+        exit 1
+    }
+    Write-Output "mtw: psmux 애드온을 삭제했습니다: $MTW_ADDON"
 }
 
 # 3. -RemoveProjects 지정 시 ~\.mtw\ 전체 삭제 (프로젝트 목록 포함, 백업 선행)

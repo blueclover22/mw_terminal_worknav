@@ -2,9 +2,17 @@
 
 [한국어](../ko/install-psmux.md) | **English**
 
-Related: [README](../../README.en.md) · [macOS side](install-tmux.md) · [Troubleshooting](troubleshooting.md)
+psmux is a Windows-native, tmux-compatible multiplexer.
 
-psmux is a Windows-native, tmux-compatible multiplexer. `mtw_claude` and `mtw_codex` use it to create sessions. Without psmux the jump and list commands still work fine, but the agent commands are unusable.
+**This document applies only if you installed the psmux add-on on Windows.** The default install (jump and list commands) does not require psmux. With the add-on, `mtw_claude` and `mtw_codex` create a psmux session and run the agent inside it.
+
+```powershell
+pwsh -NoProfile -File .\windows\install.ps1 -WithPsmux
+```
+
+On macOS the multiplexer is tmux and the add-on is separate — see [Installing tmux](install-tmux.md).
+
+Related: [README](../../README.en.md) · [Configuration](configuration.md) · [macOS side](install-tmux.md) · [Troubleshooting](troubleshooting.md)
 
 ## 1. First — you need PowerShell 7
 
@@ -108,12 +116,12 @@ mtw_codex myApp      # inside a session, so Codex CLI runs in a new window
 
 ## 6. Installing and uninstalling mtw (for reference)
 
-Once psmux is installed, installing mtw looks like this.
+Once psmux is installed, installing mtw looks like this. **Pass `-WithPsmux`** if you want the agent commands — without it only the jump and list commands are installed, and an add-on that was already there is removed.
 
 ```powershell
 git clone https://github.com/blueclover22/mw-terminal-worknav.git
 cd mw-terminal-worknav
-pwsh -NoProfile -File .\windows\install.ps1
+pwsh -NoProfile -File .\windows\install.ps1 -WithPsmux
 ```
 
 Uninstalling looks like this.
@@ -127,8 +135,16 @@ pwsh -NoProfile -File .\windows\uninstall.ps1 -RemoveProjects    # deletes all o
 
 ## 7. Uninstalling psmux
 
+To remove psmux itself:
+
 ```powershell
 winget uninstall psmux
 ```
 
 Removing psmux leaves `mtw_cd_*`, `mtw_list`, `mtw_new` and `mtw_rm` working. Only the agent commands become unusable.
+
+To remove just the add-on, rerun the install script **without the flag**. The add-on file is deleted and the agent commands disappear.
+
+```powershell
+pwsh -NoProfile -File .\windows\install.ps1
+```

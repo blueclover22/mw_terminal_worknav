@@ -11,6 +11,8 @@ Everything lives under `~/.mtw/`. Uninstalling then means deleting a single dire
 | `~/.mtw/projects` | the registered project list | the install script, as an empty file (kept as is if it already exists) |
 | `~/.mtw/mtw.zsh` (macOS) | the implementation | the install script, copied from `macos/src/mtw.zsh` |
 | `~/.mtw/mtw.ps1` (Windows) | the implementation | the install script, copied from `windows/src/mtw.ps1` |
+| `~/.mtw/mtw-tmux.zsh` (macOS) | the tmux add-on | the install script, only when run with `--with-tmux` |
+| `~/.mtw/mtw-psmux.ps1` (Windows) | the psmux add-on | the install script, only when run with `-WithPsmux` |
 
 ---
 
@@ -70,9 +72,11 @@ The duplicate check in `mtw_new` is also case-insensitive, so names differing on
 
 ## 2. The agent registry — adding an agent
 
+> **This applies only if you installed the multiplexer add-on (tmux on macOS, psmux on Windows).** The default install has no agent commands.
+
 `mtw_claude` and `mtw_codex` differ only in the command they run; everything else (session naming, path resolution, in-session detection, error handling) is identical. Rather than writing separate functions, the tool **generates them from a single registry line**. Adding an agent is a one-line change.
 
-### macOS — top of `~/.mtw/mtw.zsh`
+### macOS — top of `~/.mtw/mtw-tmux.zsh`
 
 ```zsh
 typeset -gA MTW_AGENTS
@@ -85,7 +89,7 @@ MTW_AGENTS=(
 
 Keys and values are listed separated by whitespace. The left side is the key (which becomes the `mtw_<key>` command), the right side is the command to run.
 
-### Windows — top of `~/.mtw/mtw.ps1`
+### Windows — top of `~/.mtw/mtw-psmux.ps1`
 
 ```powershell
 $script:MTW_AGENTS = [ordered]@{
@@ -125,12 +129,14 @@ The `mtw_aider` command appears, and `mtw_help` output and tab-completion target
 
 ### Making your edits survive
 
-`~/.mtw/mtw.zsh` and `~/.mtw/mtw.ps1` are copies the install script made from the repository, so **re-running the install script overwrites them.** To keep an added agent, edit the repository original as well.
+The files under `~/.mtw/` are copies the install script made from the repository, so **re-running the install script overwrites them.** To keep an added agent, edit the repository original as well.
 
 | OS | Repository original |
 |---|---|
-| macOS | `macos/src/mtw.zsh` |
-| Windows | `windows/src/mtw.ps1` |
+| macOS | `macos/src/mtw-tmux.zsh` |
+| Windows | `windows/src/mtw-psmux.ps1` |
+
+The add-on is copied **only when the flag is given**. Reinstalling without `--with-tmux` (macOS) or `-WithPsmux` (Windows) deletes the add-on file, and your edits along with it.
 
 ---
 
@@ -154,5 +160,6 @@ if (Test-Path "$HOME\.mtw\mtw.ps1") { . "$HOME\.mtw\mtw.ps1" }
 # <<< mtw (mw-terminal-worknav) <<<
 ```
 
+- **The add-on is loaded by the implementation, not by this block.** The last line of the implementation checks for the add-on file (`~/.mtw/mtw-tmux.zsh`, `~/.mtw/mtw-psmux.ps1`) and sources it if present. The loader block therefore stays exactly these three lines whether or not the add-on is installed, and toggling the add-on on an existing install needs no profile edit.
 - **On macOS this block must be at the end of `.zshrc`.** Registering tab completion requires `compdef`, which only exists after `compinit` has run. Moving the block higher up leaves everything else working and **breaks tab completion only** (see [Troubleshooting](troubleshooting.md)).
 - If the markers are not exactly one pair (one start, one end, start first), the install and uninstall scripts **abort without touching the profile** and only tell you to clean it up yourself.

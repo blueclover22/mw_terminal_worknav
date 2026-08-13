@@ -1,21 +1,13 @@
 # mtw v1.0.0
-# mw-terminal-worknav - Windows (PowerShell 7 + tmux/psmux) 기능 본체
+# mw-terminal-worknav - Windows (PowerShell 7) 기능 본체
 #
 # 설치 스크립트가 ~/.mtw/mtw.ps1 로 복사하고 $PROFILE 의 로더 블록이 dot-source 한다.
-
-# ── 에이전트 레지스트리 ──────────────────────────────────────────────
-# "키 = 실행명령" 한 줄 추가로 mtw_<키> 명령이 생긴다. 키는 함수 이름이 되므로
-# 예약어(아래 MTW_RESERVED)는 쓸 수 없다.
-$script:MTW_AGENTS = [ordered]@{
-    claude = 'claude'
-    codex  = 'codex'
-}
-
-# 고정 명령과 겹치면 안 되는 예약어 (에이전트 레지스트리 키 금지 목록)
-$script:MTW_RESERVED = @('list', 'new', 'rm', 'help', 'cd')
+# 이동·목록 명령만 담고 멀티플렉서에 의존하지 않는다. 에이전트 세션 명령은
+# 선택 설치되는 psmux 애드온(mtw-psmux.ps1)이 제공하며 이 파일 마지막에서 로드된다.
 
 # ── 설정 ─────────────────────────────────────────────────────────────
 $script:MTW_PROJECTS_FILE = Join-Path $HOME '.mtw' 'projects'
+$script:MTW_ADDON_PSMUX = Join-Path $HOME '.mtw' 'mtw-psmux.ps1'
 $script:MTW_PROJECTS = [System.Collections.Generic.Dictionary[string, string]]::new([System.StringComparer]::Ordinal)
 
 # ── 내부 함수 ────────────────────────────────────────────────────────
@@ -82,62 +74,6 @@ function __mtw_register {
     }
 }
 
-# 레지스트리(MTW_AGENTS) → mtw_<에이전트> 함수 생성.
-function __mtw_register_agents {
-    foreach ($key in $script:MTW_AGENTS.Keys) {
-        if ($script:MTW_RESERVED -contains $key) {
-            $host.UI.WriteErrorLine("mtw: 경고: 에이전트 키 '$key' 는 예약어($($script:MTW_RESERVED -join ' ')) 와 겹쳐 건너뜁니다.")
-            continue
-        }
-        $cmd = $script:MTW_AGENTS[$key]
-        $sb = {
-            param([string]$Name)
-            __mtw_session -AgentCmd $cmd -Name $Name
-        }.GetNewClosure()
-        New-Item -Path "function:global:mtw_$key" -Value $sb -Force | Out-Null
-    }
-}
-
-# 에이전트 공통 실행 로직 — 세션명/경로 결정 후 tmux 로 세션(또는 창) 생성.
-function __mtw_session {
-    param(
-        [Parameter(Mandatory)] [string]$AgentCmd,
-        [string]$Name
-    )
-
-    if (-not [string]::IsNullOrEmpty($Name)) {
-        # 이름 매칭은 대소문자를 무시한다 — mtw_new 중복 검사 · mtw_rm 과 같은 규칙.
-        # 세션명도 입력 표기가 아니라 등록된 표기를 쓴다.
-        $matchedKey = ''
-        foreach ($existingKey in $script:MTW_PROJECTS.Keys) {
-            if ($existingKey.ToLowerInvariant() -eq $Name.ToLowerInvariant()) {
-                $matchedKey = $existingKey
-                break
-            }
-        }
-        if ([string]::IsNullOrEmpty($matchedKey)) {
-            $host.UI.WriteErrorLine("mtw: 오류: 등록되지 않은 이름입니다: $Name")
-            $global:LASTEXITCODE = 1
-            return
-        }
-        $targetPath = $script:MTW_PROJECTS[$matchedKey]
-        $session = $matchedKey
-    }
-    else {
-        $targetPath = (Get-Location).Path
-        $session = Split-Path -Leaf $targetPath
-    }
-
-    $session = $session -replace '[^A-Za-z0-9_-]', '_'
-
-    if ($env:TMUX) {
-        tmux new-window -n $session -c $targetPath $AgentCmd
-    }
-    else {
-        tmux new-session -A -s $session -c $targetPath $AgentCmd
-    }
-}
-
 # 자동완성 후보 제공(등록 시점이 아니라 호출 시점의 메모리 목록을 읽는다).
 function __mtw_complete {
     param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
@@ -148,24 +84,16 @@ function __mtw_complete {
         ForEach-Object { [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_) }
 }
 
-# 자동완성 등록 — mtw_rm + 레지스트리에서 생성된 에이전트 명령 전체.
+# 자동완성 등록 — 본체가 제공하는 mtw_rm. 에이전트 명령은 애드온이 따로 등록한다.
 function __mtw_register_completion {
-    $targets = [System.Collections.Generic.List[string]]::new()
-    $targets.Add('mtw_rm')
-    foreach ($key in $script:MTW_AGENTS.Keys) {
-        if ($script:MTW_RESERVED -contains $key) { continue }
-        $targets.Add("mtw_$key")
-    }
-
-    Register-ArgumentCompleter -CommandName $targets -ParameterName 'Name' -ScriptBlock ${function:__mtw_complete}
+    Register-ArgumentCompleter -CommandName 'mtw_rm' -ParameterName 'Name' -ScriptBlock ${function:__mtw_complete}
 }
 
 # ── 공개 명령 ────────────────────────────────────────────────────────
 #
 # 종료 상태 규칙 — 실패 시 $LASTEXITCODE = 1, 성공 시 0. 함수는 프로세스 종료
 # 코드를 내지 않으므로 이 변수가 유일한 통보 수단이며, 성공 경로에서 되돌리지
-# 않으면 직전 실패의 1 이 남는다. __mtw_session 은 예외 — 마지막 동작이 네이티브
-# tmux 라 그 종료 코드가 담기고, 이것이 zsh 판과 같은 동작이다.
+# 않으면 직전 실패의 1 이 남는다.
 
 function mtw_list {
     if ($script:MTW_PROJECTS.Count -eq 0) {
@@ -327,18 +255,23 @@ function mtw_help {
     Write-Output '  mtw_rm <이름>          목록에서 등록 해제 (폴더는 삭제하지 않음)'
     Write-Output '  mtw_help               이 도움말 출력'
     Write-Output '  mtw_cd_<이름>          등록된 경로로 이동'
-    Write-Output ''
-    Write-Output '에이전트 명령'
-    foreach ($key in ($script:MTW_AGENTS.Keys | Sort-Object)) {
-        if ($script:MTW_RESERVED -contains $key) { continue }
-        Write-Output "  mtw_$key [이름]        세션 생성 후 '$($script:MTW_AGENTS[$key])' 실행"
+
+    # 애드온이 로드되어 있으면 자기 명령 절을 덧붙인다.
+    if (Test-Path -LiteralPath 'function:__mtw_help_agents') {
+        __mtw_help_agents
     }
     $global:LASTEXITCODE = 0
 }
 
 # ── 초기화 ───────────────────────────────────────────────────────────
-# 목록 적재 → 이동 함수 생성 → 에이전트 함수 생성 → 자동완성 등록
+# 목록 적재 → 이동 함수 생성 → 자동완성 등록 → 애드온(있으면) 로드
 __mtw_load
 __mtw_register
-__mtw_register_agents
 __mtw_register_completion
+
+# psmux 애드온은 설치 스크립트를 -WithPsmux 로 실행했을 때만 존재한다. 로더 블록이
+# 아니라 여기서 읽는 이유는, 이미 프로필에 로더 블록이 있는 설치본에 줄을 더
+# 넣으려면 프로필 재작성이 필요해서다 — 본체 갱신만으로 애드온 유무를 반영한다.
+if (Test-Path -LiteralPath $script:MTW_ADDON_PSMUX -PathType Leaf) {
+    . $script:MTW_ADDON_PSMUX
+}

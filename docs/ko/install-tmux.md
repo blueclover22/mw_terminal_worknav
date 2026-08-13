@@ -2,9 +2,15 @@
 
 **한국어** | [English](../en/install-tmux.md)
 
-`mtw_claude` · `mtw_codex` 는 tmux 세션을 만들고 그 안에서 에이전트를 실행합니다. tmux 가 없으면 이동·목록 명령은 정상 동작하지만 에이전트 명령은 쓸 수 없습니다.
+**이 문서는 macOS 에서 tmux 애드온을 설치한 경우에만 해당합니다.** 기본 설치(이동·목록 명령)는 tmux 를 요구하지 않습니다. 애드온을 설치하면 `mtw_claude` · `mtw_codex` 가 tmux 세션을 만들고 그 안에서 에이전트를 실행합니다.
 
-관련 문서: [README](../../README.md) · [Windows 쪽 설치](install-psmux.md) · [문제 해결](troubleshooting.md)
+```bash
+zsh ./macos/install.sh --with-tmux
+```
+
+Windows 쪽 멀티플렉서는 psmux 이며 애드온도 따로입니다 — [psmux 설치](install-psmux.md) 를 보세요.
+
+관련 문서: [README](../../README.md) · [설정 파일](configuration.md) · [Windows 쪽 설치](install-psmux.md) · [문제 해결](troubleshooting.md)
 
 ## 1. 설치
 
@@ -82,8 +88,16 @@ tmux 설정은 `~/.tmux.conf` 에 둡니다. 이 도구는 tmux 설정을 읽지
 
 ## 6. 제거
 
+tmux 자체를 지우려면:
+
 ```bash
 brew uninstall tmux
 ```
 
 tmux 를 지워도 `mtw_cd_*` · `mtw_list` · `mtw_new` · `mtw_rm` 은 그대로 동작합니다. 에이전트 명령만 쓸 수 없게 됩니다.
+
+애드온 쪽만 정리하려면 설치 스크립트를 **플래그 없이** 다시 실행하세요. 애드온 파일이 삭제되고 에이전트 명령이 사라집니다.
+
+```bash
+zsh ./macos/install.sh
+```
