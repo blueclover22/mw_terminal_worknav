@@ -1,4 +1,4 @@
-# mtw-tmux v2.0.1
+# mtw-tmux v2.0.2
 # mw-terminal-worknav - macOS (zsh) tmux 애드온
 #
 # 설치 스크립트를 --with-tmux 로 실행했을 때만 ~/.mtw/mtw-tmux.zsh 로 복사되고,
@@ -15,6 +15,9 @@ MTW_AGENTS=(
 )
 
 # 고정 명령과 겹치면 안 되는 예약어 (에이전트 레지스트리 키 금지 목록)
+# 대조는 키를 소문자로 낮춰 대소문자를 무시한다 — PowerShell 은 함수 이름을
+# 구분하지 않아 Windows 판에서 mtw_List 가 고정 명령 mtw_list 를 덮어쓰므로
+# 거기서는 무시가 필수다. 양 OS 가 같은 키를 같게 걸러야 해서 이쪽도 맞춘다.
 typeset -ga MTW_RESERVED
 MTW_RESERVED=(list new rm help cd)
 
@@ -24,7 +27,7 @@ MTW_RESERVED=(list new rm help cd)
 __mtw_register_agents() {
   local key cmd
   for key in ${(k)MTW_AGENTS}; do
-    if (( ${MTW_RESERVED[(Ie)$key]} )); then
+    if (( ${MTW_RESERVED[(Ie)${key:l}]} )); then
       print -ru2 -- "mtw: 경고: 에이전트 키 '${key}' 는 예약어(${MTW_RESERVED}) 와 겹쳐 건너뜁니다."
       continue
     fi
@@ -79,12 +82,12 @@ __mtw_help_agents() {
   # 키 길이가 다를 때 열이 어긋나므로, 가장 긴 키에 맞춰 절 전체를 넓힌다.
   local key width=23
   for key in ${(k)MTW_AGENTS}; do
-    (( ${MTW_RESERVED[(Ie)$key]} )) && continue
+    (( ${MTW_RESERVED[(Ie)${key:l}]} )) && continue
     (( ${#key} + 13 > width )) && width=$(( ${#key} + 13 ))
   done
 
   for key in ${(ko)MTW_AGENTS}; do
-    (( ${MTW_RESERVED[(Ie)$key]} )) && continue
+    (( ${MTW_RESERVED[(Ie)${key:l}]} )) && continue
     printf "  mtw_%s [이름]%*s세션 생성 후 '%s' 실행\n" \
       "$key" $(( width - ${#key} - 11 )) "" "${MTW_AGENTS[$key]}"
   done
@@ -99,7 +102,7 @@ __mtw_register_agent_completion() {
   targets=()
   local key
   for key in ${(k)MTW_AGENTS}; do
-    (( ${MTW_RESERVED[(Ie)$key]} )) && continue
+    (( ${MTW_RESERVED[(Ie)${key:l}]} )) && continue
     targets+=("mtw_${key}")
   done
   (( ${#targets} == 0 )) && return 0

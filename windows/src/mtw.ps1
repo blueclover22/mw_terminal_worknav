@@ -1,4 +1,4 @@
-# mtw v2.0.1
+# mtw v2.0.2
 # mw-terminal-worknav - Windows (PowerShell 7) 기능 본체
 #
 # 설치 스크립트가 ~/.mtw/mtw.ps1 로 복사하고 $PROFILE 의 로더 블록이 dot-source 한다.

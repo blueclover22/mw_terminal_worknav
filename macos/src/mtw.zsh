@@ -1,4 +1,4 @@
-# mtw v2.0.1
+# mtw v2.0.2
 # mw-terminal-worknav - macOS (zsh) 기능 본체
 #
 # 설치 스크립트가 ~/.mtw/mtw.zsh 로 복사하고 ~/.zshrc 의 로더 블록이 source 한다.

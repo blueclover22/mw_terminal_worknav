@@ -116,15 +116,16 @@ The `mtw_aider` command appears, and `mtw_help` output and tab-completion target
 ### Rules
 
 - **Reserved words cannot be used as keys** — `list`, `new`, `rm`, `help`, `cd`. They would collide with the fixed commands (`mtw_list`, `mtw_new`, `mtw_rm`, `mtw_help`, `mtw_cd_*`).
+  **The check is case-insensitive** — `List` and `RM` are filtered out as well. PowerShell does not distinguish case in function names, so `mtw_List` would overwrite the fixed command `mtw_list`; the zsh implementation follows the same rule so that both operating systems filter the same keys.
   A reserved key produces a warning on stderr at load time and **only that entry's function is skipped**. The fixed command is never overwritten, and the entry is left out of `mtw_help` output and tab completion as well.
 
   ```
   mtw: 경고: 에이전트 키 'rm' 는 예약어(list new rm help cd) 와 겹쳐 건너뜁니다.
   ```
 
-  (Messages are Korean in v2.0.1. This one reads: "warning: agent key 'rm' collides with a reserved word (list new rm help cd), skipping.")
+  (Messages are Korean in v2.0.2. This one reads: "warning: agent key 'rm' collides with a reserved word (list new rm help cd), skipping.")
 
-- **The value must be a single command name.** The registry value is passed to tmux as one argument without word splitting, so multi-token commands containing spaces, such as `claude --model x`, are not supported in v2.0.1. If you want to add options, write a wrapper script and register its name instead.
+- **The value must be a single command name.** The registry value is passed to tmux as one argument without word splitting, so multi-token commands containing spaces, such as `claude --model x`, are not supported in v2.0.2. If you want to add options, write a wrapper script and register its name instead.
 - **The command must be on PATH.** This tool does not participate in installing, authenticating or adding agent CLIs to PATH.
 
 ### Making your edits survive

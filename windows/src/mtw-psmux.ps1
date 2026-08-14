@@ -1,4 +1,4 @@
-# mtw-psmux v2.0.1
+# mtw-psmux v2.0.2
 # mw-terminal-worknav - Windows (PowerShell 7) psmux 애드온
 #
 # 설치 스크립트를 -WithPsmux 로 실행했을 때만 ~/.mtw/mtw-psmux.ps1 로 복사되고,
@@ -18,6 +18,9 @@ $script:MTW_AGENTS = [ordered]@{
 }
 
 # 고정 명령과 겹치면 안 되는 예약어 (에이전트 레지스트리 키 금지 목록)
+# 대조하는 -contains 는 대소문자를 무시한다. PowerShell 은 함수 이름을 구분하지
+# 않아 mtw_List 가 고정 명령 mtw_list 를 덮어쓰기 때문이며, zsh 판도 키를
+# 소문자로 낮춰 같은 키를 같게 거른다.
 $script:MTW_RESERVED = @('list', 'new', 'rm', 'help', 'cd')
 
 # ── 내부 함수 ────────────────────────────────────────────────────────
