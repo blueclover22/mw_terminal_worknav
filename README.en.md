@@ -42,7 +42,7 @@ The jump command uses the double prefix `mtw_cd_` so that commands generated fro
 | OS | macOS 12 or later | Windows 10 / 11 |
 | Shell | zsh (the default shell) | PowerShell 7 or later |
 | Multiplexer | not needed (tmux only for the add-on) | not needed (psmux only for the add-on) |
-| Verification status | verified on real hardware through v2.0.1 (macOS 26 · zsh 5.9) | verified on real hardware (Windows 11 · PowerShell 7) |
+| Verification status | verified on real hardware (macOS 26 · zsh 5.9 · tmux 3.7) | verified on real hardware (Windows 11 · PowerShell 7) |
 
 The default install requires nothing beyond the shell.
 

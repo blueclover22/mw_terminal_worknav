@@ -42,7 +42,7 @@ mtw_help            # 전체 명령 안내
 | OS | macOS 12 이상 | Windows 10 / 11 |
 | 셸 | zsh (기본 셸) | PowerShell 7 이상 |
 | 멀티플렉서 | 불필요 (애드온을 쓸 때만 tmux) | 불필요 (애드온을 쓸 때만 psmux) |
-| 검증 상태 | v2.0.1 까지 실기 검증 완료 (macOS 26 · zsh 5.9) | 실기 검증 완료 (Windows 11 · PowerShell 7) |
+| 검증 상태 | 실기 검증 완료 (macOS 26 · zsh 5.9 · tmux 3.7) | 실기 검증 완료 (Windows 11 · PowerShell 7) |
 
 기본 설치는 셸 외에 아무것도 요구하지 않습니다.
 
